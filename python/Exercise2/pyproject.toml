@@ -3,7 +3,7 @@ name = "exercise2"
 version = "0.1.0"
 description = "Exercise 2 - Legacy Code Refactoring"
 authors = [
-    {name = "Developer", email = "developer@example.com"},
+    {name = "Niraj Kumar", email = "Niraj.Kumar006@msd.govt.nz"},
 ]
 dependencies = []
 requires-python = ">=3.8"
