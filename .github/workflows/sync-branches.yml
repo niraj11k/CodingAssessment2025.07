@@ -1,0 +1,52 @@
+# Name of the GitHub Action
+name: Nightly Dev-Main Sync
+
+# Controls when the action will run
+on:
+  schedule:
+    # Runs "at midnight UTC" every day. You can adjust this time.
+    # Use https://crontab.guru/ to help generate cron schedules.
+    - cron: '0 0 * * *'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  sync-branches:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository's code
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history for all tags and branches
+          fetch-depth: 0
+          # A personal access token is needed to trigger subsequent actions
+          token: ${{ secrets.PAT_TOKEN }}
+
+      # Step 2: Configure Git user
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "github-actions-bot@users.noreply.github.com"
+      
+      # Step 3: Sync the branches
+      - name: Sync dev to main
+        run: |
+          # Switch to the main branch
+          git checkout main
+          echo "On main branch."
+
+          # Pull the latest changes from the remote main branch
+          git pull origin main
+          echo "Pulled latest changes from main."
+
+          # Merge the dev branch into main
+          # The --no-ff flag ensures a merge commit is always created for history tracking
+          git merge --no-ff dev -m "chore: nightly sync from dev"
+          echo "Merged dev into main."
+
+          # Push the changes to the remote main branch
+          git push origin main
+          echo "Pushed changes to main."
