@@ -48,7 +48,7 @@ class Person(BaseModel):
         return validName
     
 # [REFACTORED]: Updating class name from BirthingUnit to Person Factory to make it appropirate 
-class BirthingUnit:
+class PersonFactory:
     """
     Manages a collection of Person instances.
     - get_people(i) updated to create_and_add_people(i), will create a new people and return only the newly created list(non-cumulative)
@@ -62,14 +62,14 @@ class BirthingUnit:
         :param allowed_first_name: Optional list of first names to choose from defaults to ['Bob', 'Bettie,]
         """
 
-        self._people = List[Person] = []
+        self._people: List[Person] = []
         self._seed = seed
         if seed is not None:
             random.seed(seed)
             logger.debug("Random seed set to %s", seed)
         self.allowed_first_names = list(allowed_first_names) if allowed_first_names else DEFAULT_NAMES
 
-    def get_people(self, i: int) -> List[Person]:
+    def create_and_add_people(self, i: int) -> List[Person]:
         """
         Generate `i` new Person objects, append them to the internal collection, and return
         the newly created list
@@ -102,7 +102,7 @@ class BirthingUnit:
         """
         thirty_years_ago = datetime.now() - timedelta(days=30 * DAYS_IN_YEAR)# [Refactored] use constant for days in year
         if older_than_30:
-            result = [x for x in self._people if x.name == "Bob" and x.dob <= thirty_years_ago] # [Refactored] fixed the older_than_30 logic
+            result = [x for x in self._people if x.name == "Bob" and x.date_of_birth <= thirty_years_ago] # [Refactored] fixed the older_than_30 logic
         else:
             result = [x for x in self._people if x.name == "Bob"]
         logger.debug("_get_bobs_older_than(older_than_30=%s) returned %d entries", older_than_30, len(result))
