@@ -1,2 +1,5 @@
 # Can be edited using https://www.toptal.com/developers/gitignore?templates=java,csharp,node,ruby
 pickup
+.venv
+.pytest_cache
+__pycache__
