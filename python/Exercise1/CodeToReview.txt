@@ -1,15 +1,34 @@
+#--------------------------------------------------------------------------------------------------
+# INTRODUCTION:
+# This python code defines two classes:
+# 1. People: Represents a person with a name and date of birth.
+# 2. BirthingUnit: Manages a collection of People, allwoing creation of random people,
+#    filtering of "Bob" entries by age, and generating a "married name".
+# The code uses random generation for names and birthdates, and contains few methods
+# for querying and modifying people's name.
+# REVIEW:
+# I have added inline reviews in the code.
+#--------------------------------------------------------------------------------------------------
+
 from datetime import datetime, timedelta
 from typing import List
 import random
 
 
+# [FEEDBACK]: It's good practise to use singular class names like person than People, as it avoids confusion when we have the 
+# list of these objects. e.g list of Person is much clear than list of People.
 class People:
+    # class-level constant: A datetime representing "under 16 age"
+    # [Question]: Why is this exactly 15 years instead of 16? And why hardcoded as years*365?
     Under16 = datetime.now() - timedelta(days=15 * 365)
     
     def __init__(self, name: str, dob: datetime = None):
         self.name = name
+        #if dob not provided, defaults to under16 constant above
         self.dob = dob or self.Under16
     
+    #Feedback: If getter methods contains no additional condition except just retriving values,
+    # it can be removed for simplicity and space complexity. In python attributes can access directly(e.g. people.name)
     def get_name(self) -> str:
         return self.name
     
@@ -19,43 +38,80 @@ class People:
 
 class BirthingUnit:
     def __init__(self):
-        # MaxItemsToRetrieve
-        self._people = []
+        # MaxItemsToRetrieve <--[Code SMELL : Dispensables]: Misleading comment, adds no real value. 
+        self._people = [] # Private attribute to hold people objects
 
     def get_people(self, i: int) -> List[People]:
         """
         GetPeoples
-        :param j:
-        :return: List[object]
+        :param j: <--[CODE SMELL : Dispensables] Docstring param name incorrect; should be `i` not `j`
+        :return: List[object] <--[CODE SMELL : Dispensables] Incorrect docstring crates confusion. 
+        [FEEDBACK] : Return type is List[People] but docstring says List[object]
         """
         for j in range(i):
             try:
-                # Creates a dandon Name
-                name = ""
+                # Creates a dandon Name <--[FEEDBACK] : Possible typo here. It should say Random
+                name = "" #[CODE SMELL : Dispensables] Dead code, redundant initialization to empty string
                 if random.randint(0, 1) == 0:
                     name = "Bob"
                 else:
                     name = "Betty"
                 # Adds new people to the list
-                age_days = random.randint(18, 85) * 356
+                #[QUESTION]: Possible BUG due to typo? Should be 365 unless intentional?
+                age_days = random.randint(18, 85) * 356 #[CODE SMELL : Bloaters] Using raw numbers instead of names constant can lead to error
                 birth_date = datetime.now() - timedelta(days=age_days)
                 self._people.append(People(name, birth_date))
             except Exception as e:
-                # Dont think this should ever happen
-                raise Exception("Something failed in user creation")
-        return self._people
+                # Dont think this should ever happen <--[Code SMELL : Dispensables]: Misleading comment, adds no real value.
+                
+                # [FEEDBACK] : Should use `raise Exception(f"Error adding people: {e})` for better error handling
+                raise Exception("Something failed in user creation") #[CODE SMELL : Dispensables] Poor error handling
+            
+        #[Question : Why we are returning All people and not just the newly created one]    
+        return self._people #[CODE SMELL : Design Smell] Returns the cumulative list, not just newly created people
 
     def _get_bobs(self, older_than_30: bool) -> List[People]:
-        thirty_years_ago = datetime.now() - timedelta(days=30 * 356)
+        #BUG : Using 356/year instead 365 days/year; inconsistent with calendar year
+        thirty_years_ago = datetime.now() - timedelta(days=30 * 356) #[CODE SMELL : Bloaters] Using raw numbers instead of names constant can lead to error
+
+        #BUG Logic seems inverted, older_than_30 actually returns people younger or equal to 30.
         if older_than_30:
-            return [x for x in self._people if x.name == "Bob" and x.dob >= thirty_years_ago]
+            return [x for x in self._people if x.name == "Bob" and x.dob >= thirty_years_ago] #[CODE SMELL : Change Preventers] Logic smell, produce incorrect result
         else:
             return [x for x in self._people if x.name == "Bob"]
-
+        
+    #[Code Smell: Dispensables] Misleading Method name as it doesn't actually modify the person object or create marraiage relationship]
     def get_married(self, p: People, last_name: str) -> str:
+        # Special case: if last_name contains "test", just return the original name
+        #[QUESTION]: is this for test data? Why skip appending last name here?
         if "test" in last_name:
             return p.name
+        
+        # If combined name is longer than 255 characters, truncate it
+        # [FEEDBACK] No need a create a new string just to check its length 
         if len(p.name + last_name) > 255:
+
+            #[CODE SMELL] Logic Smell as Concatenation without space for length check, but adds space in result
             return (p.name + " " + last_name)[:255]
 
         return p.name + " " + last_name
+    
+
+"""
+Additional Feedback
+
+## Most concerning Code smell
+Inverted Logic in _get_bobs
+** Category: Change Preventers
+** Why it's critical
+	* Semantic bug: The code produces incorerect results silently - no exception, no warnings.
+	* Suprise Behaviour: Anyone calling get_bobs(older_than_30=True) expects Bobs older than 30 years, but gets the opposites
+	* Maintenance risk: Fixing or extending this logic can popagate errors if the root cause is mistaken
+
+# Questions to ask the author:
+1. Why is the constant for a "year" set to 356 days instead of "365"? is this intentional?
+2. Is the `test` check in `get_married` purely for skipping logic during testing, or does it have another buiness requirements?
+3. Why there is check for length of the full name under `get_married` method, any busuness requirement?
+4. If we are calculating days, shouldn't we consider leap years in our calculations?
+5. Shouldn't there be input validation for names like stripping whitespace, empty names, no special characters?
+"""
