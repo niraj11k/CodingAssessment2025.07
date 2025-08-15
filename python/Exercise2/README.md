@@ -17,15 +17,26 @@ The code has been **refactored** to:
 * **Python 3.8** or newer. You can download it from [python.org](https://www.python.org/downloads/).
 
 ### **2. Setup Instructions**
-1. **Clone or Download the Code**
-    clone the code https://github.com/niraj11k/CodingAssessment2025.07.git
-    Create a new folder for the project and place the following two files inside it:
-        * `codeToRefactor.py` 
-        * `codeToRefactor-test.py`
+**2.1. Clone the Repository**
+    `git clone https://github.com/niraj11k/CodingAssessment2025.07.git`
+
+**2.2. Unzip the folder if you have zip folder**
+    *Extract the ZIP file to your preferred location.*
+
+**2.3. Open with VSCODE**
+    *Launch **Visual Studio Code**.*
+    *Open the cloned or extracted project folder.*
+    *Open the integrated terminal in VS Code.*
+
+**2.4. Navigate to the Exercise Directory**
+    `cd python/Excercise2/`
+
 2. **requirements.txt file**
     Check in the same folder, if you already have `requirements.txt` file.
     If not, create a new file named `requirements.txt` and add the following line to it. This file lists all the necessary Python packages for the project. 
-    ``` pydantic ```
+    `pydantic>=2.0`
+    `pytest>=7.0`
+
 3. **Create and Activate a Virtual Environment (Recommended)**
     It's highly recommended to use a virtual environment to keep project dependencies isolated.
     Open your terminal or command prompt in the project folder and run:
