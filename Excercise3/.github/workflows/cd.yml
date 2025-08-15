@@ -1,0 +1,43 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [main]  # Only trigger on main branch updates
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production  # Special environment for deployment
+    
+    steps:
+    # 1. Checkout code
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # 2. Setup Node
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    
+    # 3. Install dependencies
+    - name: Install dependencies
+      run: npm ci
+    
+    # 4. Build production assets
+    - name: Build project
+      run: npm run build
+    
+    # 5. Deploy to GitHub Pages
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}  # Auto-generated secret
+        publish_dir: ./dist  # Your build output directory
+        keep_files: false  # Clean deploy each time
+    
+    # 6. Post-deployment smoke test
+    - name: Run smoke test
+      run: |
+        DEPLOYED_URL="https://yourusername.github.io/repo-name/"
+        curl -sSf $DEPLOYED_URL | grep '<title>Card Game</title>'
