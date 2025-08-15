@@ -58,7 +58,7 @@ node src/html/cli.js
 
 # Build Docker image
 docker build -t Excercise3 .
-
+```
 #### Architecture Decision Record (ADR)
 
 **Decision Implementation of clean Architecture**
