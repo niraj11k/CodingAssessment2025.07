@@ -44,7 +44,8 @@ jobs:
 
           # Merge the dev branch into main
           # The --no-ff flag ensures a merge commit is always created for history tracking
-          git merge --no-ff dev -m "chore: nightly sync from dev"
+          #git merge --no-ff dev -m "chore: nightly sync from dev"
+          git reset --hard origin/dev
           echo "Merged dev into main."
 
           # Push the changes to the remote main branch
