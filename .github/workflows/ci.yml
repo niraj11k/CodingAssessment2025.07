@@ -1,0 +1,38 @@
+name: CI - Run Tests on PR
+
+# When should this workflow run?
+on:
+  pull_request:
+    branches: [ dev ]  # Only run when PR is opened to dev branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # Use Ubuntu server
+    
+    steps:
+    # Step 1: Get the code from the PR
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # Step 2: Set up Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13.5'  # Adjust to your Python version
+    
+    # Step 3: Install pytest and any dependencies
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+        cd python/Exercise2
+        pip install -r requirements.txt
+    
+    # Step 4: Run your tests
+    - name: Run tests with pytest
+      run: |
+        cd python/Exercise2
+        pytest -v
+    
+    # GitHub will automatically show the test results on the PR
+    # No additional notification needed - you'll see red X or green checkmark
