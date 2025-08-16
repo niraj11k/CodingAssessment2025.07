@@ -49,5 +49,5 @@ jobs:
           echo "Merged dev into main."
 
           # Push the changes to the remote main branch
-          git push origin main
+          git push --force origin main
           echo "Pushed changes to main."
